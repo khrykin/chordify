@@ -1,3 +1,5 @@
+import "isomorphic-fetch";
+
 String.prototype.splice = function(idx, rem, str) {
     return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
 };
@@ -43,24 +45,9 @@ export function parse(string) {
 }
 
 export function grabAndChordify(url, cb) {
-
-  let XHR = ("onload" in new XMLHttpRequest()) ?
-    XMLHttpRequest : XDomainRequest;
-
-  let xhr = new XHR();
-
-  xhr.open('GET', url, true);
-
-  xhr.onload = function () {
-    let result = this.responseText;
-    cb(null, result);
-  }
-
-  xhr.onerror = function () {
-    cb(this.status + ': ' + this.statusText, null);
-  }
-
-  xhr.send();
+  return fetch(url)
+  .then(response => response.text())
+  .then(html => console.log(html))
 }
 
 /**
