@@ -5,14 +5,18 @@
   "main": "dist/chordify.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel src/chordify.js --out-file dist/chordify.js",
-    "watch": "babel src/chordify.js --watch --out-file dist/chordify.js",
+    "build": "babel src --out-dir lib",
+    "watch": "babel --watch  src --out-dir lib",
     "start": "node dist/chordify"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "isomorphic-fetch": "^2.2.1"
+    "colors": "^1.1.2",
+    "expect": "^1.14.0",
+    "isomorphic-fetch": "^2.2.1",
+    "jsdom": "^8.1.0",
+    "mocha": "^2.4.5"
   },
   "devDependencies": {
     "babel-cli": "^6.5.1",

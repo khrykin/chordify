@@ -1,23 +1,16 @@
-import "isomorphic-fetch";
-
 String.prototype.splice = function(idx, rem, str) {
     return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
 };
 
-function decorateCharWithChord(char, chord, pre, after, gutter='') {
-  let preStr = pre.replace('{chord}', chord);
-  let afterStr = after.replace('{chord}', chord);
 
-  return`${preStr}${char}${afterStr}${gutter}`;
-}
-
-export function parse(string) {
+export function parse(string, debug=false) {
   let lines = string.split('\n');
   let data = [];
 
   for (let index in lines) {
     const line = lines[index];
-    const hasChords = /^\s*(([A-Z]{1}[a-z\d]*#?)(\s*\/\s*)?([A-Z]{1}#?)?\s*(?![a-z]))+$/.test(line)
+    const hasChordsReg = /^\s*(\[?([A-Z]{1}[a-z\d]*#?)(\s*\/\s*)?([A-Z]{1}#?)?\s*(?![a-z])\]?)+$/;
+    const hasChords = hasChordsReg.test(line)
     const isEmpty = /^\s*$/.test(line);
 
     let obj = {
@@ -28,7 +21,7 @@ export function parse(string) {
 
     if (hasChords) {
       obj.chords = [];
-      const re = /(([A-Z]{1}[a-z\d]*#?)(\s*\/\s*)?([A-Z]{1}#?)?)/g;
+      const re = /(\[?([A-Z]{1}[a-z\d]*#?)(\s*\/\s*)?([A-Z]{1}#?)?\]?)/g;
 
       let chord;
 
@@ -41,14 +34,19 @@ export function parse(string) {
 
     data.push(obj);
   }
+  debug && console.log(data);
   return data;
 }
 
-export function grabAndChordify(url, cb) {
-  return fetch(url)
-  .then(response => response.text())
-  .then(html => console.log(html))
+function decorateCharWithChord(char, chord, pre, after, gutter='') {
+  let preStr = pre.replace('{chord}', chord);
+  let afterStr = after.replace('{chord}', chord);
+
+  if (/^\s?$/.test(char)) char = gutter;
+
+  return`${preStr}${char}${afterStr}${gutter}`;
 }
+
 
 /**
 Main chrodifying function
@@ -61,8 +59,8 @@ Main chrodifying function
 @returns output {string}
 */
 
-export default function chordify(string, pre="{chord}", after="", gutter="&nbsp;") {
-  const data = parse(string);
+export default function chordify(string, pre="{chord}", after="", gutter="&nbsp;", debug) {
+  const data = parse(string, debug);
 
   let result = [];
 
@@ -85,7 +83,7 @@ export default function chordify(string, pre="{chord}", after="", gutter="&nbsp;
 
       for (let chord in chords) {
         const index = numberOfCharsAdded + chords[chord];
-        const stringToInsert = decorateCharWithChord(editedLine[index], chord, pre, after);
+        const stringToInsert = decorateCharWithChord(editedLine[index] || '', chord, pre, after);
 
         editedLine = editedLine.splice(index, 1, stringToInsert);
         numberOfCharsAdded += stringToInsert.length - chord.length;
