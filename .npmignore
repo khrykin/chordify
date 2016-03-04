@@ -1,2 +1,4 @@
 /src
 .babelrc
+npm-debug.log
+.DS_Store

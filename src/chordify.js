@@ -1,3 +1,6 @@
+/**
+* @module chordify
+*/
 String.prototype.splice = function(idx, rem, str) {
     return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
 };
@@ -50,11 +53,12 @@ function decorateCharWithChord(char, chord, pre, after, gutter='') {
 
 /**
 Main chrodifying function
-@param string {string} - string to inspect for chords
-@param pre {string} - string to be placed before chord's target character
-@param before {string} - string to be placed before chord's target character. `{chord}` will be replaced with actual chord signature.
-@param after {string} - string to be placed after before chord's target character. `{chord}` will be replaced with actual chord signature.
-@param gutter {string} - string to be appended to the end of `after` in chords-only lines
+@param string {string} - String to inspect for chords
+@param pre {string} - String to be placed before chord's target character
+@param before {string} - String to be placed before chord's target character. `{chord}` will be replaced with actual chord signature.
+@param after {string} - String to be placed after chord's target character. `{chord}` will be replaced with actual chord signature.
+@param gutter {string} - String to be appended to the end of `after` in chords-only lines
+@param debug {boolean} - If set, outputs object with parsing info
 
 @returns output {string}
 */
@@ -95,7 +99,7 @@ export default function chordify(string, pre="{chord}", after="", gutter="&nbsp;
       } else if (!isEmpty && chordsOnly) {
         let newLine = "";
         for (let chord in obj.chords) {
-          const stringToInsert = decorateCharWithChord('', chord, pre, after);
+          const stringToInsert = decorateCharWithChord('', chord, pre, after, gutter);
           newLine += stringToInsert;
         }
         result.push(newLine);

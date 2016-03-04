@@ -1,9 +1,12 @@
+#! /usr/bin/env node
+
 import "isomorphic-fetch";
 import  jsdom from "jsdom";
 
-import chordify from './chordify';
+import chordify from '../chordify';
 import colors from 'colors'
 
+import pkg from '../../package.json';
 
 function afterFetched(timerId, text) {
   process.stdout.clearLine();
@@ -17,6 +20,7 @@ function log(msg, color) {
   const string = `${delimeter}${msg}${delimeter}`;
   process.stdout.write(color ? string[color] : string);
 }
+
 
 const warn = (msg) => log(msg, 'red');
 
@@ -83,14 +87,15 @@ function grabAndChordify(url, selector='pre', pre, after, gutter, debug) {
 
 // concole.log(grabAndChordify(process.argv));
 
-const FLAGS = [
-  '--url',
-  '--pre',
-  '--after',
-  '--selector',
-  '--gutter',
-  '--debug'
-];
+const FLAGS = {
+  '--url': "URL where perform search for chords. Protocol must be provided",
+  '--selector': "CSS selector for element(s) where chords live, default: \"pre\"",
+  '--pre': "String to be placed before chord's target character. {chord} will be replaced with actual chord signature",
+  '--after': "String to be placed after chord's target character. {chord} will be replaced with actual chord signature",
+  '--gutter': "String to be appended to the end of after in chords-only lines",
+  '--debug': "If set, outputs object with parsing info",
+};
+
 
 function getParam(flag) {
   const flagIndex = process.argv.indexOf(flag);
@@ -98,14 +103,14 @@ function getParam(flag) {
   const paramProvided
     = flagIndex > 0 &&
     typeof param !== 'undefined' &&
-    FLAGS.indexOf(param) < 0;
+    Object.keys(FLAGS).indexOf(param) < 0;
 
   return paramProvided ? param : undefined;
 }
 
 function getParams() {
   let params = {};
-  for (let flag of FLAGS) {
+  for (let flag of Object.keys(FLAGS)) {
     const paramName = flag.replace(/^--?/, '');
     params[paramName] = getParam(flag)
   }
@@ -143,4 +148,21 @@ function cli() {
 
 }
 
-cli();
+function help () {
+  const header = `
+
+  ${new Array(30).join(' ')}CHORDIFY v${pkg.version}
+
+  `
+  let output = [header];
+  for ( let flag in FLAGS ) {
+    output.push(`${flag}: ${FLAGS[flag]}`);
+  }
+  console.log(output.join('\n\n'))
+}
+
+if (process.argv.length < 3 || process.argv.indexOf('--help') > 0) {
+  help();
+} else {
+  cli();
+}
